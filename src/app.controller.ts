@@ -11,7 +11,9 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Res } from '@nestjs/common/decorators/http';
 import { Req } from '@nestjs/common/decorators/http';
-import { Response, Request } from 'express';
+import { Response, Request, response } from 'express';
+import { UserDto } from './user.dto';
+import { LoginDto } from './login.dto';
 
 @Controller('api')
 export class AppController {
@@ -21,39 +23,28 @@ export class AppController {
   ) {}
 
   @Post('register')
-  async register(
-    @Body('name') name: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    const user = await this.appService.create({
-      name,
-      email,
+  async register(@Body() user: UserDto) {
+    const hashedPassword = await bcrypt.hash(user.password, 12);
+    const newUser = await this.appService.create({
+      ...user,
       password: hashedPassword,
     });
-    // const { password, ...result } = user;
-    delete user.password;
-    return user;
+    const { password, ...result } = newUser;
+    return result;
   }
 
   @Post('login')
   async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
+    @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const user = await this.appService.findOne({ email });
-
+    const user = await this.appService.findOne({ email: loginDto.email });
     if (!user) {
       throw new BadRequestException('invalid user');
     }
-
-    if (!(await bcrypt.compare(password, user.password))) {
+    if (!(await bcrypt.compare(loginDto.password, user.password))) {
       throw new BadRequestException('invalid password ');
     }
-
     const jwt = await this.jwtService.signAsync({ id: user.id });
 
     response.cookie('jwt', jwt, { httpOnly: true });
@@ -66,17 +57,12 @@ export class AppController {
   async user(@Req() request: Request) {
     try {
       const cookie = request.cookies['jwt'];
-
       const data = await this.jwtService.verifyAsync(cookie);
-
       if (!data) {
         throw new UnauthorizedException();
       }
-
       const user = await this.appService.findOne({ id: data['id'] });
-
       const { password, ...result } = user;
-
       return result;
     } catch (e) {
       throw new UnauthorizedException();
