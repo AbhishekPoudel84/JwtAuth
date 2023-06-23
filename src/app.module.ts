@@ -6,6 +6,7 @@ import { User } from './user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { EmailModule } from './email/email.module';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { EmailModule } from './email/email.module';
     }),
     ConfigModule.forRoot(),
     EmailModule,
+    OtpModule,
   ],
   controllers: [AppController],
   providers: [AppService],

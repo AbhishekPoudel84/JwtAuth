@@ -17,6 +17,8 @@ import { LoginDto } from './login.dto';
 import { totp } from 'otplib';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from './email/email.service';
+import { OtpService } from './otp/otp.service';
+import { privateDecrypt } from 'crypto';
 
 @Controller('api')
 export class AppController {
@@ -25,6 +27,7 @@ export class AppController {
     private jwtService: JwtService,
     private emailService: EmailService,
     private configService: ConfigService,
+    private otpService: OtpService,
   ) {}
 
   @Post('register')
@@ -53,8 +56,8 @@ export class AppController {
     const jwt = await this.jwtService.signAsync({ id: user.id });
 
     response.cookie('jwt', jwt, { httpOnly: true });
-    const secret = this.configService.get('SECRET');
-    const token = totp.generate(secret);
+
+    const token = this.otpService.getToken();
     this.emailService.sendMail({
       to: loginDto.email,
       subject: 'Email confirmation',
@@ -67,14 +70,11 @@ export class AppController {
 
   @Post('confirmOtp')
   async confirmEmailOtp(@Body('otp') token: string) {
-    const secret = this.configService.get('SECRET');
-    const isValid = totp.check(token, secret);
-
-    //30 sec ma
+    const isValid = this.otpService.confirmOtp(token);
     if (!isValid) {
-      throw new BadRequestException('Invalid Otp');
+      throw new BadRequestException('OTP expired');
     }
-    return { message: 'otp confirmed' };
+    return { message: 'OTP confirmed' };
   }
 
   @Get('user')
