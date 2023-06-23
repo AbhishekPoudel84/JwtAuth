@@ -24,7 +24,7 @@ export class AppController {
     private readonly appService: AppService,
     private jwtService: JwtService,
     private emailService: EmailService,
-    private readonly configService: ConfigService,
+    private configService: ConfigService,
   ) {}
 
   @Post('register')
@@ -63,6 +63,18 @@ export class AppController {
     return {
       message: 'success',
     };
+  }
+
+  @Post('confirmOtp')
+  async confirmEmailOtp(@Body('otp') token: string) {
+    const secret = this.configService.get('SECRET');
+    const isValid = totp.check(token, secret);
+
+    //30 sec ma
+    if (!isValid) {
+      throw new BadRequestException('Invalid Otp');
+    }
+    return { message: 'otp confirmed' };
   }
 
   @Get('user')

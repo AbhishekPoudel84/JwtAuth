@@ -19,3 +19,8 @@ export class UserDto {
   @MinLength(8)
   password: string;
 }
+//   @IsEmailConfirmed : boolean;
+// }
+// function IsEmailConfirmed(target: UserDto, propertyKey: ''): void {
+//   throw new Error('Function not implemented.');
+// }
