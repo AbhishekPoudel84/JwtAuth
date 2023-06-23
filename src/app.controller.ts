@@ -14,12 +14,17 @@ import { Req } from '@nestjs/common/decorators/http';
 import { Response, Request, response } from 'express';
 import { UserDto } from './user.dto';
 import { LoginDto } from './login.dto';
+import { totp } from 'otplib';
+import { ConfigService } from '@nestjs/config';
+import { EmailService } from './email/email.service';
 
 @Controller('api')
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private jwtService: JwtService,
+    private emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Post('register')
@@ -48,6 +53,13 @@ export class AppController {
     const jwt = await this.jwtService.signAsync({ id: user.id });
 
     response.cookie('jwt', jwt, { httpOnly: true });
+    const secret = this.configService.get('SECRET');
+    const token = totp.generate(secret);
+    this.emailService.sendMail({
+      to: loginDto.email,
+      subject: 'Email confirmation',
+      text: `Your email confirmation otp is: ${token}`,
+    });
     return {
       message: 'success',
     };

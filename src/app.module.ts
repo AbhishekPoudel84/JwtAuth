@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { JwtModule } from '@nestjs/jwt';
       secret: 'secret',
       signOptions: { expiresIn: '1d' },
     }),
+    ConfigModule.forRoot(),
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
