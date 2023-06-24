@@ -12,12 +12,15 @@ import { JwtService } from '@nestjs/jwt';
 import { Res } from '@nestjs/common/decorators/http';
 import { Req } from '@nestjs/common/decorators/http';
 import { Response, Request, response } from 'express';
-import { UserDto } from './user.dto';
+import { UserDto } from './user/user.dto';
 import { LoginDto } from './login.dto';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from './email/email.service';
 import { OtpService } from './otp/otp.service';
 import { ChangePassDto } from './change-pass.dto';
+import { ReqResetPassDto } from './req-reset-pass.dto';
+import { ResetPassDto } from './reset-pass.dto';
+import { User } from './user/user.entity';
 
 @Controller('api')
 export class AppController {
@@ -67,7 +70,7 @@ export class AppController {
     };
   }
 
-  @Post('confirmOtp')
+  @Post('confirm-otp')
   async confirmEmailOtp(@Body('otp') token: string) {
     const isValid = this.otpService.confirmOtp(token);
     if (!isValid) {
@@ -92,7 +95,7 @@ export class AppController {
     }
   }
 
-  @Post('changePass')
+  @Post('change-pass')
   async changePass(@Body() changePass: ChangePassDto, @Req() request: Request) {
     try {
       // first we validate the users JWT
@@ -120,6 +123,55 @@ export class AppController {
       };
     } catch (e) {
       throw new UnauthorizedException();
+    }
+  }
+
+  @Post('req-reset-pass')
+  async reqResetPass(@Body() reqResetPass: ReqResetPassDto) {
+    //first we validate the users email
+    const user = await this.appService.findOne({ email: reqResetPass.email });
+    if (!user) {
+      throw new BadRequestException('Invalid User');
+    }
+
+    const token = this.otpService.getToken();
+    this.emailService.sendMail({
+      to: reqResetPass.email,
+      subject: 'Reset Password Otp',
+      text: `Your reset password OTP is: ${token}`,
+    });
+    return {
+      message: 'The otp for reset-pass is sent.',
+    };
+  }
+
+  //get email
+  @Post('reset-pass')
+  async resetPass(@Body() resetPass: ResetPassDto) {
+    try {
+      const user = await this.appService.findOne({ email: resetPass.email });
+      if (!user) {
+        throw new BadRequestException('Invalid User');
+      }
+
+      // otp validate
+      const isValid = await this.otpService.confirmOtp(resetPass.otp);
+      if (!isValid) {
+        throw new BadRequestException('OTP is not valid.');
+      }
+
+      //new password
+      if (resetPass.newPassword != resetPass.retypeNewPassword) {
+        throw new BadRequestException('Password doesnot match');
+      }
+      const hashedPassword = await bcrypt.hash(resetPass.newPassword, 12);
+      await this.appService.update(user.id, { password: hashedPassword });
+
+      return {
+        message: 'Password reset successfully',
+      };
+    } catch (e) {
+      return 'not found';
     }
   }
 }
