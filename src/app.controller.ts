@@ -14,11 +14,10 @@ import { Req } from '@nestjs/common/decorators/http';
 import { Response, Request, response } from 'express';
 import { UserDto } from './user.dto';
 import { LoginDto } from './login.dto';
-import { totp } from 'otplib';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from './email/email.service';
 import { OtpService } from './otp/otp.service';
-import { privateDecrypt } from 'crypto';
+import { ChangePassDto } from './change-pass.dto';
 
 @Controller('api')
 export class AppController {
@@ -80,14 +79,45 @@ export class AppController {
   @Get('user')
   async user(@Req() request: Request) {
     try {
-      const cookie = request.cookies['jwt'];
-      const data = await this.jwtService.verifyAsync(cookie);
+      const jwtToken = request.cookies['jwt'];
+      const data = await this.jwtService.verifyAsync(jwtToken);
       if (!data) {
         throw new UnauthorizedException();
       }
       const user = await this.appService.findOne({ id: data['id'] });
       const { password, ...result } = user;
       return result;
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  @Post('changePass')
+  async changePass(@Body() changePass: ChangePassDto, @Req() request: Request) {
+    try {
+      // first we validate the users JWT
+      const jwtToken = request.cookies['jwt'];
+      const data = await this.jwtService.verifyAsync(jwtToken);
+      if (!data) {
+        throw new UnauthorizedException();
+      }
+
+      //validate the old password
+      const user = await this.appService.findOne({ id: data['id'] });
+      if (!(await bcrypt.compare(changePass.oldPassword, user.password))) {
+        throw new BadRequestException('invalid password ');
+      }
+
+      // then lastly we update the database with the updated password
+      if (changePass.newPassword != changePass.retypeNewPassword) {
+        throw new BadRequestException('Password doesnot match');
+      }
+      const hashedPassword = await bcrypt.hash(changePass.newPassword, 12);
+      await this.appService.update(user.id, { password: hashedPassword });
+
+      return {
+        message: 'Password changed successfully',
+      };
     } catch (e) {
       throw new UnauthorizedException();
     }

@@ -33,5 +33,6 @@ import { OtpModule } from './otp/otp.module';
   ],
   controllers: [AppController],
   providers: [AppService],
+  exports: [AppService],
 })
 export class AppModule {}

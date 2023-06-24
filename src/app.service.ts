@@ -21,4 +21,8 @@ export class AppService {
       },
     });
   }
+
+  async update(id, data) {
+    return this.userRepository.update(id, data);
+  }
 }
