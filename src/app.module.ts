@@ -9,6 +9,8 @@ import { EmailModule } from './email/email.module';
 import { OtpModule } from './otp/otp.module';
 import { MessagesModule } from './messages/messages.module';
 import { JWTModule } from './jwt/jwt-module';
+import { PrivateMessage } from './messages/entities/private-message.entity';
+import { GroupMessage } from './messages/entities/group-message.entity';
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { JWTModule } from './jwt/jwt-module';
       username: 'root',
       password: 'root',
       database: 'authtry',
-      entities: [User],
+      entities: [User, PrivateMessage, GroupMessage],
       synchronize: true,
       migrationsTableName: 'migrations',
       migrations: [],

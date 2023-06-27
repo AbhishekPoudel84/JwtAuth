@@ -43,17 +43,6 @@ export class MessagesGateway implements OnGatewayConnection {
       const { password, ...result } = user;
       // set userId on socket
       socket.data = { ...result };
-
-      socket.onAny((event, ...args) => {
-        console.log(
-          '🚀 ~ file: messages.gateway.ts:47 ~ MessagesGateway ~ socket.onAny ~ event:',
-          event,
-        );
-        console.log(
-          '🚀 ~ file: messages.gateway.ts:50 ~ MessagesGateway ~ socket.onAny ~ args:',
-          args,
-        );
-      });
       // notify new user to group
       socket.broadcast.emit('new-user', { ...result });
       // join user to room
@@ -80,7 +69,8 @@ export class MessagesGateway implements OnGatewayConnection {
     @MessageBody() groupMessageDto: GroupMessageDto,
     @ConnectedSocket() client: Socket,
   ) {
-    const newData = { ...groupMessageDto };
+    const from = client.data.id;
+    const newData = { ...groupMessageDto, from: from, isPrivate: false };
     client.broadcast.emit('group-message', { ...newData });
   }
 
