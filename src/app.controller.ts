@@ -8,10 +8,9 @@ import {
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
 import { Res } from '@nestjs/common/decorators/http';
 import { Req } from '@nestjs/common/decorators/http';
-import { Response, Request, response } from 'express';
+import { Response, Request } from 'express';
 import { UserDto } from './user/user.dto';
 import { LoginDto } from './login.dto';
 import { ConfigService } from '@nestjs/config';
@@ -20,13 +19,13 @@ import { OtpService } from './otp/otp.service';
 import { ChangePassDto } from './change-pass.dto';
 import { ReqResetPassDto } from './req-reset-pass.dto';
 import { ResetPassDto } from './reset-pass.dto';
-import { User } from './user/user.entity';
+import { JWTService } from './jwt/jwt-service';
 
 @Controller('api')
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private jwtService: JwtService,
+    private jwtService: JWTService,
     private emailService: EmailService,
     private configService: ConfigService,
     private otpService: OtpService,

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,8 +7,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { EmailModule } from './email/email.module';
 import { OtpModule } from './otp/otp.module';
-//import { ChatappModule } from './chatapp/chatapp.module';
 import { MessagesModule } from './messages/messages.module';
+import { JWTModule } from './jwt/jwt-module';
 
 @Module({
   imports: [
@@ -25,14 +25,11 @@ import { MessagesModule } from './messages/messages.module';
       migrations: [],
     }),
     TypeOrmModule.forFeature([User]),
-    JwtModule.register({
-      secret: 'secret',
-      signOptions: { expiresIn: '1d' },
-    }),
-    ConfigModule.forRoot(),
     EmailModule,
     OtpModule,
-    MessagesModule,
+    ConfigModule,
+    JWTModule,
+    ConfigModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],
