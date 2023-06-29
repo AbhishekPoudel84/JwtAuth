@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { totp } from 'otplib';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { totp } from "otplib";
 
 @Injectable()
 export class OtpService {
@@ -12,7 +12,7 @@ export class OtpService {
       step: 600, //10 min
     };
     this.otpService = totp;
-    this.secret = this.configService.get('SECRET');
+    this.secret = this.configService.get("SECRET");
   }
 
   getToken() {

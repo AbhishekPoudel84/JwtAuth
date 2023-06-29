@@ -1,19 +1,26 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from "src/user/user.entity";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 
-@Entity('privatemessage')
+@Entity("private_message")
 export class PrivateMessage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  from: number;
+  @ManyToOne(() => User, (fromUser: User) => fromUser.privateMessages)
+  fromUser: User;
 
-  @Column()
-  to: number;
+  @ManyToOne(() => User, (toUser: User) => toUser.receivedPrivateMessages)
+  toUser: User;
 
   @Column()
   message: string;
 
-  @Column()
+  @CreateDateColumn()
   createdAt: Date;
 }

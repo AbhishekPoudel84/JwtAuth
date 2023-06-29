@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
-import { MessagesModule } from './messages/messages.module';
-import { AppModule } from './app.module';
+/* eslint-disable prettier/prettier */
+import { Module } from "@nestjs/common";
+import { MessagesModule } from "./messages/messages.module";
+import { AppModule } from "./app.module";
 
 @Module({
   imports: [MessagesModule, AppModule],
