@@ -1,3 +1,4 @@
+import { FileUpload } from "src/file/entities/file.entity";
 import { GroupMessage } from "src/messages/entities/group-message.entity";
 import { PrivateMessage } from "src/messages/entities/private-message.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
@@ -33,4 +34,10 @@ export class User {
     (receivedPrivateMessage: PrivateMessage) => receivedPrivateMessage.toUser
   )
   public receivedPrivateMessages: PrivateMessage[];
+
+  @OneToMany(
+    () => FileUpload,
+    (uploadedFile: FileUpload) => uploadedFile.fromUser
+  )
+  public uploadedFiles: FileUpload[];
 }

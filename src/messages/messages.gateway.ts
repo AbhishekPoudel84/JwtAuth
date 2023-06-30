@@ -14,7 +14,7 @@ import { AppService } from "src/app.service";
 import { JWTService } from "src/jwt/jwt-service";
 import { PrivateMessageDto } from "./dto/private-message.dto";
 import { GroupMessageDto } from "./dto/group-message.dto";
-import { GroupMessage } from "./entities/group-message.entity";
+import { FileService } from "src/file/file.service";
 
 @WebSocketGateway({
   cors: {
@@ -26,7 +26,7 @@ export class MessagesGateway implements OnGatewayConnection {
   constructor(
     private readonly messagesService: MessagesService,
     private appService: AppService,
-    private jwtService: JWTService
+    private jwtService: JWTService // private fileService: FileService
   ) {}
 
   @WebSocketServer()
@@ -76,10 +76,19 @@ export class MessagesGateway implements OnGatewayConnection {
     const fromUser = client.data;
     const mentionedUserIds = groupMessageDto.mentionedIds;
     const repliedMessageId = groupMessageDto.repliedMessageId;
+    const savedFileIds = groupMessageDto.saveFileUploadIds;
+    const files = [];
+    for (let i = 0; i < savedFileIds.length; i++) {
+      files.push({
+        id: savedFileIds[i],
+      });
+    }
+
     const newData = {
       ...groupMessageDto,
       fromUser: fromUser,
       repliedMessageId,
+      fileUploads: files,
     };
     const value = await this.messagesService.groupMessage({ ...newData });
     client.broadcast.emit("group-message", { ...newData });
@@ -100,52 +109,4 @@ export class MessagesGateway implements OnGatewayConnection {
       }
     }
   }
-
-  //Mention
-  // @SubscribeMessage("mention")
-  // async mention(
-  //   @MessageBody() groupMessageDto: GroupMessageDto,
-  //   @ConnectedSocket() client: Socket
-  // ) {
-  //   const from = client.data.id;
-  //   const newData = { ...groupMessageDto, from: from };
-  //   client.broadcast.emit("group-message", { ...newData });
-  // }
-
-  // @SubscribeMessage("reply")
-  // onMention(
-  //   @MessageBody() groupMessageDto: GroupMessageDto,
-  //   @ConnectedSocket() client: Socket
-  // ) {
-  //   if(body.message){
-  //     this.server.to(body.to).emit("reply-chat",{
-  //       from : client.data.id,
-  //       message : `User ${client.data.id} replied `,
-  //     });
-  //   }
-  // }
-
-  //@SubscribeMessage('')
-  // @SubscribeMessage('findAllMessages')
-  // findAll() {
-  //   return this.messagesService.findAll();
-  // }
-
-  // @SubscribeMessage('join')
-  // joinRoom(
-  //   @MessageBody('name') name: string,
-  //   @ConnectedSocket() client: Socket,
-  // ) {
-  //   return this.messagesService.identify(name, client.id);
-  // }
-
-  // @SubscribeMessage('typing')
-  // async typing(
-  //   @MessageBody('isTyping') isTyping: boolean,
-  //   @ConnectedSocket() client: Socket,
-  // ) {
-  //   const name = await this.messagesService.getClientname(client.id);
-
-  //   client.broadcast.emit('typing', { name, isTyping });
-  // }
 }

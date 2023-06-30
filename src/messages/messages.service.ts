@@ -28,42 +28,11 @@ export class MessagesService {
       where: {
         ...condition,
       },
+      relations: ["fromUser"],
     });
   }
 
   async privateMessage(privateMessage) {
     return this.privateMessageRepository.save(privateMessage);
   }
-  // messages: Message[] = [{ name: 'Marius', text: 'hi' }];
-  // clientToUser = {};
-  // identify(name: string, clientId: string) {
-  //   this.clientToUser[clientId] = name;
-  //   return Object.values(this.clientToUser);
-  // }
-  // getClientname(clientId: string) {
-  //   return this.clientToUser[clientId];
-  // }
-  // create(createMessageDto: CreateMessageDto, clientId: string) {
-  //   const message = {
-  //     name: this.clientToUser[clientId],
-  //     text: createMessageDto.text,
-  //   };
-  //   this.messages.push(message);
-  //   return message;
-  // }
-  // findAll() {
-  //   return this.messages;
-  // }
-  //
-  //  async privateMessage(privateMessageDto: PrivateMessageDto) {
-  //  const privateMessage = new PrivateMessage();
-  //  privateMessage.from = privateMessageDto.from;
-  //  privateMessage.to = privateMessageDto.to;
-  //  privateMessage.message = privateMessageDto.message;
-  //  console.log(
-  //  "🚀 ~ file: messages.service.ts:48 ~ MessagesService ~ privateMessage ~ privateMessage:",
-  //  privateMessage
-  //  );
-  // return this.messageRepository.save({privateMessage});
-  // }
 }

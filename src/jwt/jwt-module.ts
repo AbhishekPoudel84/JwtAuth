@@ -6,7 +6,7 @@ import { JWTService } from "./jwt-service";
   imports: [
     JwtModule.register({
       secret: "secret",
-      signOptions: { expiresIn: "1d" },
+      signOptions: { expiresIn: "30d" },
     }),
   ],
   controllers: [],

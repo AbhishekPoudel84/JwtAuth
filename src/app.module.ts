@@ -11,6 +11,8 @@ import { JWTModule } from "./jwt/jwt-module";
 import { GroupMessage } from "./messages/entities/group-message.entity";
 import { PrivateMessage } from "./messages/entities/private-message.entity";
 import { MessageMention } from "./messages/entities/message-mention.entity";
+import { FileModule } from "./file/file.module";
+import { FileUpload } from "./file/entities/file.entity";
 
 @Module({
   imports: [
@@ -21,7 +23,13 @@ import { MessageMention } from "./messages/entities/message-mention.entity";
       username: "root",
       password: "root",
       database: "authtry",
-      entities: [User, GroupMessage, PrivateMessage, MessageMention],
+      entities: [
+        User,
+        GroupMessage,
+        PrivateMessage,
+        MessageMention,
+        FileUpload,
+      ],
       synchronize: true,
       migrationsTableName: "migrations",
       migrations: [],
@@ -32,6 +40,7 @@ import { MessageMention } from "./messages/entities/message-mention.entity";
     ConfigModule,
     JWTModule,
     ConfigModule.forRoot(),
+    FileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

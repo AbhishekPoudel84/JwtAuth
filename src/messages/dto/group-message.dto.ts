@@ -7,4 +7,6 @@ export class GroupMessageDto {
   mentionedIds: number[];
 
   repliedMessageId: number;
+
+  saveFileUploadIds: number[];
 }

@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { MessageMention } from "./message-mention.entity";
+import { FileUpload } from "src/file/entities/file.entity";
 
 @Entity("group_message")
 export class GroupMessage {
@@ -31,4 +32,7 @@ export class GroupMessage {
 
   @Column({ nullable: true })
   repliedMessageId: number;
+
+  @OneToMany(() => FileUpload, (fileUpload: FileUpload) => fileUpload.message)
+  fileUploads: FileUpload[];
 }
