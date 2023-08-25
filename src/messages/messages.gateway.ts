@@ -50,6 +50,7 @@ export class MessagesGateway implements OnGatewayConnection {
       socket.join(data.id.toString());
     } catch (e) {
       return socket.disconnect();
+      // return { message: "Its not working." };
     }
   }
 
